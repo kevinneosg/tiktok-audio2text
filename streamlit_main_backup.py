@@ -5,7 +5,7 @@ import whisper
 import streamlit as st
 from chatbot import analyze_transcript
 
-# Define persona
+# Define your persona
 persona = {
     "name": "Kevin Neo",
     "race": "Chinese",
@@ -54,14 +54,9 @@ def transcribe_audio(audio_path):
     result = model.transcribe(audio_path)
     return result["text"]
 
-st.title("TikTok Video Transcriber & Custom AI Script Generator")
+st.title("TikTok Video Transcriber & AI Persona Analyzer")
 
 tiktok_url = st.text_input("Enter the TikTok video URL:")
-
-if "transcript" not in st.session_state:
-    st.session_state["transcript"] = ""
-if "ai_script" not in st.session_state:
-    st.session_state["ai_script"] = ""
 
 if st.button("Transcribe"):
     if tiktok_url:
@@ -80,45 +75,32 @@ if st.button("Transcribe"):
 
         with st.spinner("Transcribing audio..."):
             transcript = transcribe_audio(audio_file)
-            st.session_state["transcript"] = transcript
 
-        st.subheader("1. Transcribed Text (Original)")
-        st.write(st.session_state["transcript"])
+        st.subheader("Transcript")
+        st.write(transcript)
 
         with open(transcript_file, 'w', encoding='utf-8') as f:
-            f.write(st.session_state["transcript"])
+            f.write(transcript)
         st.success(f"Transcript saved to {transcript_file}")
 
         st.download_button(
             label="Download Transcript",
-            data=st.session_state["transcript"],
+            data=transcript,
             file_name=transcript_file,
             mime='text/plain'
         )
+
+        # AI Persona Analysis Button
+        if st.button("Analyze Transcript as Kevin Neo"):
+            with st.spinner("Analyzing transcript with AI persona..."):
+                ai_summary = analyze_transcript(transcript, persona)
+            st.subheader("AI-Generated Summary")
+            st.write(ai_summary)
+            st.download_button(
+                label="Download AI Summary",
+                data=ai_summary,
+                file_name=f"{safe_title}_ai_summary.txt",
+                mime='text/plain'
+            )
     else:
         st.error("Please enter a valid TikTok URL.")
-
-if st.session_state["transcript"]:
-    st.markdown("---")
-    st.subheader("2. Custom AI Script Generation")
-
-    video_desc = st.text_area("Briefly describe what the video is about:")
-    ai_goal = st.text_area("Describe what you want the AI to write as an outcome:")
-
-    regenerate = st.button("Generate/Regenerate AI Script")
-
-    if (regenerate and video_desc and ai_goal) or (st.session_state["ai_script"] == "" and video_desc and ai_goal):
-        with st.spinner("Generating AI script..."):
-            st.session_state["ai_script"] = analyze_transcript(
-                st.session_state["transcript"], persona, video_desc, ai_goal
-            )
-
-    if st.session_state["ai_script"]:
-        st.subheader("3. AI-Generated Script")
-        st.write(st.session_state["ai_script"])
-        st.download_button(
-            label="Download AI Script",
-            data=st.session_state["ai_script"],
-            file_name="ai_generated_script.txt",
-            mime='text/plain'
-        )
