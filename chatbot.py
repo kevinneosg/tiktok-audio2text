@@ -19,9 +19,12 @@ Given the transcript below, write a new TikTok script that matches the desired o
 Transcript:
 {transcript}
 """
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
+    response = openai.chat.completions.create(
+        model="gpt-3.5-turbo",  # or "gpt-4o" if you have access
+        messages=[
+            {"role": "system", "content": "You are an expert scriptwriter."},
+            {"role": "user", "content": prompt}
+        ],
         max_tokens=300
     )
-    return response.choices[0].text.strip()
+    return response.choices[0].message.content.strip()
