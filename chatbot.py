@@ -3,7 +3,7 @@ import openai
 
 openai.api_key = st.secrets["openai"]["api_key"]
 
-def analyze_transcript(transcript, persona):
+def analyze_transcript(transcript, persona, video_desc, ai_goal):
     prompt = f"""
 You are {persona['name']}, a {persona['race']} {persona['nationality']} who speaks {persona['Language']}.
 Your job: {persona['job']}
@@ -11,7 +11,10 @@ Your style: {persona['style']}
 Your interests: {', '.join(persona['interests'])}
 Use catchphrases like: {', '.join(persona['catchphrases'])}
 
-Analyze the following transcript, extract the main ideas, and summarize it in your own style:
+Original video description: {video_desc}
+Desired outcome: {ai_goal}
+
+Given the transcript below, write a new TikTok script that matches the desired outcome. Transform the content as needed, and ensure it is distinct from the original.
 
 Transcript:
 {transcript}
