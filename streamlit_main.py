@@ -3,6 +3,19 @@ import re
 import subprocess
 import whisper
 import streamlit as st
+from chatbot import analyze_transcript
+
+# Define your persona
+persona = {
+    "name": "Kevin Neo",
+    "race": "Chinese",
+    "nationality": "Singaporean",
+    "Language": "Mandarin, English",
+    "style": "friendly, informative, concise",
+    "job": "Crypto Digital Marketing Manager for Saprolings Pte Ltd, a crypto consultancy and marketing firm that helps DeFi projects, previous worked with renowned projects such as Boba & Hasbulla",
+    "interests": ["tech", "coding", "AI", "TikTok trends"],
+    "catchphrases": ["Let's dive in!", "Here's a quick tip:", "Stay curious!"]
+}
 
 def get_video_title(url):
     import yt_dlp
@@ -41,7 +54,7 @@ def transcribe_audio(audio_path):
     result = model.transcribe(audio_path)
     return result["text"]
 
-st.title("TikTok Video Transcriber")
+st.title("TikTok Video Transcriber & AI Persona Analyzer")
 
 tiktok_url = st.text_input("Enter the TikTok video URL:")
 
@@ -66,17 +79,28 @@ if st.button("Transcribe"):
         st.subheader("Transcript")
         st.write(transcript)
 
-        # Save transcript to a file
         with open(transcript_file, 'w', encoding='utf-8') as f:
             f.write(transcript)
         st.success(f"Transcript saved to {transcript_file}")
 
-        # Download button for transcript
         st.download_button(
             label="Download Transcript",
             data=transcript,
             file_name=transcript_file,
             mime='text/plain'
         )
+
+        # AI Persona Analysis Button
+        if st.button("Analyze Transcript as Kevin Neo"):
+            with st.spinner("Analyzing transcript with AI persona..."):
+                ai_summary = analyze_transcript(transcript, persona)
+            st.subheader("AI-Generated Summary")
+            st.write(ai_summary)
+            st.download_button(
+                label="Download AI Summary",
+                data=ai_summary,
+                file_name=f"{safe_title}_ai_summary.txt",
+                mime='text/plain'
+            )
     else:
         st.error("Please enter a valid TikTok URL.")
